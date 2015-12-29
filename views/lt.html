@@ -1,0 +1,41 @@
+﻿{% extends './layout.html'%}
+{% block head %}
+{% parent %}
+<script src="/lib/socket.io.js" type="text/javascript"></script>
+<!--<script src="/js/initCell.js" type="text/javascript"></script>-->
+{% endblock  %}
+{% block body %}
+<!--<embed id="test" class="main" src="/img/象棋.svg"></embed>-->
+<input type="text" class="roomid"/><input type="button" class="button" value="get"/>
+<video name="speak">
+<!--<source src="http://tts.baidu.com/text2audio?lan=zh&pid=101&ie=UTF-8&text=%E4%BD%A0%E5%A5%BD&spd=2" type="audio/mp3"></video>-->
+<script>
+  var socket = io.connect('http://127.0.0.1:3001');
+  socket.on('open',function(){
+      $("input.button").click(function(){
+          var data = $("input.roomid").val();
+          if(!data)
+          {
+              alert("please input room id");
+          }
+          else
+          {
+              socket.emit('roomid',data);
+          }
+      });
+  });
+    socket.on('newmsg',function(msg){
+        console.log(msg);
+        var video = document.createElement("video");
+        video.autoplay ="true";
+        $("body").append(video);
+        var source = document.createElement("source");
+        source.src = "http://tts.baidu.com/text2audio?lan=zh&pid=101&ie=UTF-8&text="+msg+"&spd=9";
+        source.type = "audio/mp3";
+        $("video:last").append(source);
+        setTimeout(function(){
+            $("video:first").remove();
+        },1500)
+    })
+</script>
+{% endblock  %}
